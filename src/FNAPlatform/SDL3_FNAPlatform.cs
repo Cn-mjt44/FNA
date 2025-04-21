@@ -2345,6 +2345,19 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Clipbord Methods
+
+		public static string GetClipboardText()
+		{
+			return SDL.SDL_GetClipboardText();
+		}
+
+		public static bool SetClipboardText(string text)
+		{
+			return SDL.SDL_SetClipboardText(text);
+		}
+		#endregion
+
 		#region SDL3<->XNA Key Conversion Methods
 
 		/* From: http://blogs.msdn.com/b/shawnhar/archive/2007/07/02/twin-paths-to-garbage-collector-nirvana.aspx

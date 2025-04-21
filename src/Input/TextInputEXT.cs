@@ -90,6 +90,16 @@ namespace Microsoft.Xna.Framework.Input
 			FNAPlatform.SetTextInputRectangle(WindowHandle, rectangle);
 		}
 
+		public static string GetClipboardText()
+		{
+			return FNAPlatform.GetClipboardText();
+		}
+
+		public static bool SetClipboardText(string text)
+		{
+			return FNAPlatform.SetClipboardText(text);
+		}
+
 		#endregion
 
 		#region Internal Event Access Method
