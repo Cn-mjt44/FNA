@@ -862,6 +862,7 @@ namespace Microsoft.Xna.Framework
 			ref bool textInputSuppress
 		) {
 			SDL.SDL_Event evt;
+			Keyboard.repeatKeys.Clear();
 			while (SDL.SDL_PollEvent(out evt))
 			{
 				// Keyboard
@@ -887,6 +888,7 @@ namespace Microsoft.Xna.Framework
 					}
 					else if (evt.key.repeat)
 					{
+						if (!Keyboard.repeatKeys.Contains(key)) Keyboard.repeatKeys.Add(key);
 						int textIndex;
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{

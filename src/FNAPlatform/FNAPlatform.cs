@@ -266,7 +266,7 @@ namespace Microsoft.Xna.Framework
 			{ Keys.Back,	2 },
 			{ Keys.Tab,	3 },
 			{ Keys.Enter,	4 },
-			{ Keys.Delete,	5 }
+			{ Keys.Delete,	5 },
 			// Ctrl+V is special!
 		};
 

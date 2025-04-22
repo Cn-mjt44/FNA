@@ -19,6 +19,7 @@ namespace Microsoft.Xna.Framework.Input
 	/// </summary>
 	public static class Keyboard
 	{
+
 		#region Public Static Methods
 
 		/// <summary>
@@ -40,6 +41,25 @@ namespace Microsoft.Xna.Framework.Input
 			return new KeyboardState(keys);
 		}
 
+		/// <summary>
+		/// Returns the current keyboard repeat presse state.
+		/// </summary>
+		/// <returns>Current keyboard repeat state.</returns>
+		public static KeyboardState GetRepeatState()
+		{
+			return new KeyboardState(repeatKeys);
+		}
+
+		/// <summary>
+		/// Returns the current keyboard repeat presse state for a given player.
+		/// </summary>
+		/// <param name="playerIndex">Player index of the keyboard.</param>
+		/// <returns>Current keyboard repeat state.</returns>
+		public static KeyboardState GetRepeatState(PlayerIndex playerIndex)
+		{
+			return new KeyboardState(repeatKeys);
+		}
+
 		#endregion
 
 		#region Public Static FNA Extensions
@@ -54,6 +74,7 @@ namespace Microsoft.Xna.Framework.Input
 		#region Internal Static Variables
 
 		internal static List<Keys> keys = new List<Keys>();
+		internal static List<Keys> repeatKeys = new List<Keys>();
 
 		#endregion
 	}
