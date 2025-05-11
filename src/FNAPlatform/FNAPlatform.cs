@@ -131,8 +131,12 @@ namespace Microsoft.Xna.Framework
 				StartTextInput				=	SDL3_FNAPlatform.StartTextInput;
 				StopTextInput				=	SDL3_FNAPlatform.StopTextInput;
 				SetTextInputRectangle		=	SDL3_FNAPlatform.SetTextInputRectangle;
+				HasClipboardText			=	SDL3_FNAPlatform.HasClipboardText;
 				GetClipboardText			=	SDL3_FNAPlatform.GetClipboardText;
 				SetClipboardText			=	SDL3_FNAPlatform.SetClipboardText;
+				HasPrimarySelectionText		=	SDL3_FNAPlatform.HasPrimarySelectionText;
+				GetPrimarySelectionText		=	SDL3_FNAPlatform.GetPrimarySelectionText;
+				SetPrimarySelectionText		=	SDL3_FNAPlatform.SetPrimarySelectionText;
 				GetMouseState				=	SDL3_FNAPlatform.GetMouseState;
 				SetMousePosition			=	SDL3_FNAPlatform.WarpMouseInWindow;
 				OnIsMouseVisibleChanged		=	SDL3_FNAPlatform.OnIsMouseVisibleChanged;
@@ -188,8 +192,12 @@ namespace Microsoft.Xna.Framework
 				StartTextInput				=	SDL2_FNAPlatform.StartTextInput;
 				StopTextInput				=	SDL2_FNAPlatform.StopTextInput;
 				SetTextInputRectangle		=	SDL2_FNAPlatform.SetTextInputRectangle;
+				HasClipboardText			=	SDL2_FNAPlatform.HasClipboardText;
 				GetClipboardText			=	SDL2_FNAPlatform.GetClipboardText;
 				SetClipboardText			=	SDL2_FNAPlatform.SetClipboardText;
+				HasPrimarySelectionText		=	SDL2_FNAPlatform.HasPrimarySelectionText;
+				GetPrimarySelectionText		=	SDL2_FNAPlatform.GetPrimarySelectionText;
+				SetPrimarySelectionText		=	SDL2_FNAPlatform.SetPrimarySelectionText;
 				GetMouseState				=	SDL2_FNAPlatform.GetMouseState;
 				SetMousePosition			=	SDL2.SDL.SDL_WarpMouseInWindow;
 				OnIsMouseVisibleChanged		=	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
@@ -359,11 +367,24 @@ namespace Microsoft.Xna.Framework
 		public delegate void SetTextInputRectangleFunc(IntPtr window, Rectangle rectangle);
 		public static readonly SetTextInputRectangleFunc SetTextInputRectangle;
 
+		public delegate bool HasClipboardTextFunc();
+		public static readonly HasClipboardTextFunc HasClipboardText;
+
 		public delegate string GetClipboardTextFunc();
 		public static readonly GetClipboardTextFunc GetClipboardText;
 
 		public delegate bool SetClipboardTextFunc(string text);
 		public static readonly SetClipboardTextFunc SetClipboardText;
+
+
+		public delegate bool HasPrimarySelectionTextFunc();
+		public static readonly HasPrimarySelectionTextFunc HasPrimarySelectionText;
+
+		public delegate string GetPrimarySelectionTextFunc();
+		public static readonly GetPrimarySelectionTextFunc GetPrimarySelectionText;
+
+		public delegate bool SetPrimarySelectionTextFunc(string text);
+		public static readonly SetPrimarySelectionTextFunc SetPrimarySelectionText;
 
 		public delegate void GetMouseStateFunc(
 			IntPtr window,

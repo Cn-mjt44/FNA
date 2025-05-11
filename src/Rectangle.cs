@@ -349,10 +349,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if other <see cref="Rectangle"/> intersects with this rectangle; <c>false</c> otherwise.</returns>
 		public bool Intersects(Rectangle value)
 		{
-			return (	value.Left < Right &&
+			return value.Left < Right &&
 					Left < value.Right &&
 					value.Top < Bottom &&
-					Top < value.Bottom	);
+					Top < value.Bottom;
 		}
 
 		/// <summary>
@@ -362,10 +362,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result"><c>true</c> if other <see cref="Rectangle"/> intersects with this rectangle; <c>false</c> otherwise. As an output parameter.</param>
 		public void Intersects(ref Rectangle value, out bool result)
 		{
-			result = (	value.Left < Right &&
+			result	= value.Left < Right &&
 					Left < value.Right &&
 					value.Top < Bottom &&
-					Top < value.Bottom	);
+					Top < value.Bottom;
 		}
 
 		#endregion
@@ -374,10 +374,10 @@ namespace Microsoft.Xna.Framework
 
 		public static bool operator ==(Rectangle a, Rectangle b)
 		{
-			return (	(a.X == b.X) &&
+			return	(a.X == b.X) &&
 					(a.Y == b.Y) &&
 					(a.Width == b.Width) &&
-					(a.Height == b.Height)	);
+					(a.Height == b.Height);
 		}
 
 		public static bool operator !=(Rectangle a, Rectangle b)

@@ -1053,7 +1053,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
-		private unsafe void PushSprite(
+		private void PushSprite(
 			Texture2D texture,
 			float sourceX,
 			float sourceY,
@@ -1101,100 +1101,123 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (sortMode == SpriteSortMode.Immediate)
 			{
 				int offset;
-				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[0])
+				GenerateVertexInfo(
+					ref vertexInfo[0],
+					sourceX,
+					sourceY,
+					sourceW,
+					sourceH,
+					destinationX,
+					destinationY,
+					destinationW,
+					destinationH,
+					color,
+					originX,
+					originY,
+					rotationSin,
+					rotationCos,
+					depth,
+					effects
+				);
+				if(customEffect == null)
 				{
-					GenerateVertexInfo(
-						sprite,
-						sourceX,
-						sourceY,
-						sourceW,
-						sourceH,
-						destinationX,
-						destinationY,
-						destinationW,
-						destinationH,
-						color,
-						originX,
-						originY,
-						rotationSin,
-						rotationCos,
-						depth,
-						effects
-					);
+					Viewport viewport = GraphicsDevice.Viewport;
+					Rectangle screen = GraphicsDevice.ScissorRectangle;
+					screen.Width = Math.Max(Math.Min(screen.Width + screen.X, viewport.Width), screen.X) - screen.X;
+					screen.Height = Math.Max(Math.Min(screen.Height + screen.Y, viewport.Height), screen.Y) - screen.Y;
+					Rectangle sprite = new Rectangle(int.MaxValue, int.MaxValue, 0, 0);
+					VertexPositionColorTexture4 verteies = vertexInfo[0];
+					sprite.X = Math.Min(sprite.X, (int)Math.Floor(verteies.Position0.X));
+					sprite.X = Math.Min(sprite.X, (int)Math.Floor(verteies.Position1.X));
+					sprite.X = Math.Min(sprite.X, (int)Math.Floor(verteies.Position2.X));
+					sprite.X = Math.Min(sprite.X, (int)Math.Floor(verteies.Position3.X));
+					sprite.Y = Math.Min(sprite.Y, (int)Math.Floor(verteies.Position0.Y));
+					sprite.Y = Math.Min(sprite.Y, (int)Math.Floor(verteies.Position1.Y));
+					sprite.Y = Math.Min(sprite.Y, (int)Math.Floor(verteies.Position2.Y));
+					sprite.Y = Math.Min(sprite.Y, (int)Math.Floor(verteies.Position3.Y));
+					sprite.Width = Math.Max(sprite.Width, (int)Math.Ceiling(verteies.Position0.X) - sprite.X);
+					sprite.Width = Math.Max(sprite.Width, (int)Math.Ceiling(verteies.Position1.X) - sprite.X);
+					sprite.Width = Math.Max(sprite.Width, (int)Math.Ceiling(verteies.Position2.X) - sprite.X);
+					sprite.Width = Math.Max(sprite.Width, (int)Math.Ceiling(verteies.Position3.X) - sprite.X);
+					sprite.Height = Math.Max(sprite.Height, (int)Math.Ceiling(verteies.Position0.Y) - sprite.Y);
+					sprite.Height = Math.Max(sprite.Height, (int)Math.Ceiling(verteies.Position1.Y) - sprite.Y);
+					sprite.Height = Math.Max(sprite.Height, (int)Math.Ceiling(verteies.Position2.Y) - sprite.Y);
+					sprite.Height = Math.Max(sprite.Height, (int)Math.Ceiling(verteies.Position3.Y) - sprite.Y);
+					if (!sprite.Intersects(screen))
+					{
+						return;
+					}
+				}
 
-					if (supportsNoOverwrite)
-					{
-						offset = UpdateVertexBuffer(0, 1);
-					}
-					else
-					{
-						/* We do NOT use Discard here because
-						 * it would be stupid to reallocate the
-						 * whole buffer just for one sprite.
-						 *
-						 * Unless you're using this to blit a
-						 * target, stop using Immediate ya donut
-						 * -flibit
-						 */
-						offset = 0;
-						vertexBuffer.SetDataPointerEXT(
-							0,
-							(IntPtr) sprite,
-							VertexPositionColorTexture4.RealStride,
-							SetDataOptions.None
-						);
-					}
+				if (supportsNoOverwrite)
+				{
+					offset = UpdateVertexBuffer(0, 1);
+				}
+				else
+				{
+					/* We do NOT use Discard here because
+						* it would be stupid to reallocate the
+						* whole buffer just for one sprite.
+						*
+						* Unless you're using this to blit a
+						* target, stop using Immediate ya donut
+						* -flibit
+						*/
+					offset = 0;
+					vertexBuffer.SetData(
+						0,
+						vertexInfo,
+						0,
+						1,
+						VertexPositionColorTexture4.RealStride,
+						SetDataOptions.None
+					);
 				}
 				DrawPrimitives(texture, offset, 1);
 			}
 			else if (sortMode == SpriteSortMode.Deferred)
 			{
-				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[numSprites])
-				{
-					GenerateVertexInfo(
-						sprite,
-						sourceX,
-						sourceY,
-						sourceW,
-						sourceH,
-						destinationX,
-						destinationY,
-						destinationW,
-						destinationH,
-						color,
-						originX,
-						originY,
-						rotationSin,
-						rotationCos,
-						depth,
-						effects
-					);
-				}
+				GenerateVertexInfo(
+					ref vertexInfo[numSprites],
+					sourceX,
+					sourceY,
+					sourceW,
+					sourceH,
+					destinationX,
+					destinationY,
+					destinationW,
+					destinationH,
+					color,
+					originX,
+					originY,
+					rotationSin,
+					rotationCos,
+					depth,
+					effects
+				);
 
 				textureInfo[numSprites] = texture;
 				numSprites += 1;
 			}
 			else
 			{
-				fixed (SpriteInfo* spriteInfo = &spriteInfos[numSprites])
-				{
-					spriteInfo->textureHash = texture.GetHashCode();
-					spriteInfo->sourceX = sourceX;
-					spriteInfo->sourceY = sourceY;
-					spriteInfo->sourceW = sourceW;
-					spriteInfo->sourceH = sourceH;
-					spriteInfo->destinationX = destinationX;
-					spriteInfo->destinationY = destinationY;
-					spriteInfo->destinationW = destinationW;
-					spriteInfo->destinationH = destinationH;
-					spriteInfo->color = color;
-					spriteInfo->originX = originX;
-					spriteInfo->originY = originY;
-					spriteInfo->rotationSin = rotationSin;
-					spriteInfo->rotationCos = rotationCos;
-					spriteInfo->depth = depth;
-					spriteInfo->effects = effects;
-				}
+				ref SpriteInfo spriteInfo = ref spriteInfos[numSprites];
+				spriteInfo.textureHash = texture.GetHashCode();
+				spriteInfo.sourceX = sourceX;
+				spriteInfo.sourceY = sourceY;
+				spriteInfo.sourceW = sourceW;
+				spriteInfo.sourceH = sourceH;
+				spriteInfo.destinationX = destinationX;
+				spriteInfo.destinationY = destinationY;
+				spriteInfo.destinationW = destinationW;
+				spriteInfo.destinationH = destinationH;
+				spriteInfo.color = color;
+				spriteInfo.originX = originX;
+				spriteInfo.originY = originY;
+				spriteInfo.rotationSin = rotationSin;
+				spriteInfo.rotationCos = rotationCos;
+				spriteInfo.depth = depth;
+				spriteInfo.effects = effects;
 
 				textureInfo[numSprites] = texture;
 				numSprites += 1;
@@ -1226,8 +1249,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					comparer = FrontToBackCompare;
 				}
-				fixed (SpriteInfo* spriteInfo = &spriteInfos[0]) {
-				fixed (IntPtr* sortedSpriteInfo = &sortedSpriteInfos[0]) {
+				fixed (SpriteInfo* spriteInfo = &spriteInfos[0])
+				fixed (IntPtr* sortedSpriteInfo = &sortedSpriteInfos[0])
 				fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
 				{
 					for (int i = 0; i < numSprites; i += 1)
@@ -1245,7 +1268,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						SpriteInfo* info = (SpriteInfo*) sortedSpriteInfo[i];
 						GenerateVertexInfo(
-							&sprites[i],
+							ref sprites[i],
 							info->sourceX,
 							info->sourceY,
 							info->sourceW,
@@ -1263,7 +1286,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							info->effects
 						);
 					}
-				}}}
+				}
 			}
 
 			int arrayOffset = 0;
@@ -1332,8 +1355,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			return offset;
 		}
 
-		private static unsafe void GenerateVertexInfo(
-			VertexPositionColorTexture4* sprite,
+		private static void GenerateVertexInfo(
+			ref VertexPositionColorTexture4 sprite,
 			float sourceX,
 			float sourceY,
 			float sourceW,
@@ -1352,72 +1375,68 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
-			sprite->Position0.X = (
+			sprite.Position0.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
 				destinationX
 			);
-			sprite->Position0.Y = (
+			sprite.Position0.Y = (
 				(rotationCos * cornerY) +
 				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = (1.0f - originX) * destinationW;
 			cornerY = -originY * destinationH;
-			sprite->Position1.X = (
+			sprite.Position1.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
 				destinationX
 			);
-			sprite->Position1.Y = (
+			sprite.Position1.Y = (
 				(rotationCos * cornerY) +
 				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = -originX * destinationW;
 			cornerY = (1.0f - originY) * destinationH;
-			sprite->Position2.X = (
+			sprite.Position2.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
 				destinationX
 			);
-			sprite->Position2.Y = (
+			sprite.Position2.Y = (
 				(rotationCos * cornerY) +
 				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = (1.0f - originX) * destinationW;
 			cornerY = (1.0f - originY) * destinationH;
-			sprite->Position3.X = (
+			sprite.Position3.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
 				destinationX
 			);
-			sprite->Position3.Y = (
+			sprite.Position3.Y = (
 				(rotationCos * cornerY) +
 				(rotationSin * cornerX) +
 				destinationY
 			);
-			fixed (float* flipX = &CornerOffsetX[0]) {
-			fixed (float* flipY = &CornerOffsetY[0])
-			{
-				sprite->TextureCoordinate0.X = (flipX[0 ^ effects] * sourceW) + sourceX;
-				sprite->TextureCoordinate0.Y = (flipY[0 ^ effects] * sourceH) + sourceY;
-				sprite->TextureCoordinate1.X = (flipX[1 ^ effects] * sourceW) + sourceX;
-				sprite->TextureCoordinate1.Y = (flipY[1 ^ effects] * sourceH) + sourceY;
-				sprite->TextureCoordinate2.X = (flipX[2 ^ effects] * sourceW) + sourceX;
-				sprite->TextureCoordinate2.Y = (flipY[2 ^ effects] * sourceH) + sourceY;
-				sprite->TextureCoordinate3.X = (flipX[3 ^ effects] * sourceW) + sourceX;
-				sprite->TextureCoordinate3.Y = (flipY[3 ^ effects] * sourceH) + sourceY;
-			}}
-			sprite->Position0.Z = depth;
-			sprite->Position1.Z = depth;
-			sprite->Position2.Z = depth;
-			sprite->Position3.Z = depth;
-			sprite->Color0 = color;
-			sprite->Color1 = color;
-			sprite->Color2 = color;
-			sprite->Color3 = color;
+			sprite.TextureCoordinate0.X = (CornerOffsetX[0 ^ effects] * sourceW) + sourceX;
+			sprite.TextureCoordinate0.Y = (CornerOffsetY[0 ^ effects] * sourceH) + sourceY;
+			sprite.TextureCoordinate1.X = (CornerOffsetX[1 ^ effects] * sourceW) + sourceX;
+			sprite.TextureCoordinate1.Y = (CornerOffsetY[1 ^ effects] * sourceH) + sourceY;
+			sprite.TextureCoordinate2.X = (CornerOffsetX[2 ^ effects] * sourceW) + sourceX;
+			sprite.TextureCoordinate2.Y = (CornerOffsetY[2 ^ effects] * sourceH) + sourceY;
+			sprite.TextureCoordinate3.X = (CornerOffsetX[3 ^ effects] * sourceW) + sourceX;
+			sprite.TextureCoordinate3.Y = (CornerOffsetY[3 ^ effects] * sourceH) + sourceY;
+			sprite.Position0.Z = depth;
+			sprite.Position1.Z = depth;
+			sprite.Position2.Z = depth;
+			sprite.Position3.Z = depth;
+			sprite.Color0 = color;
+			sprite.Color1 = color;
+			sprite.Color2 = color;
+			sprite.Color3 = color;
 		}
 
 		private void PrepRenderState()

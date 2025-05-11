@@ -9,12 +9,15 @@
 
 #region Using Statements
 using System;
+using System.Drawing;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Input
 {
 	public static class TextInputEXT
 	{
+		private static Rectangle _InputRectangle;
 		#region Event
 
 		/// <summary>
@@ -43,61 +46,67 @@ namespace Microsoft.Xna.Framework.Input
 			set;
 		}
 
-		#endregion
-
-		#region Public Static Methods
-
-		/// <summary>
-		/// Returns if text input state is active
-		///
-		/// Note: For on-screen keyboard, this may remain true on
-		/// some platforms if an external event closed the keyboard.
-		/// In this case, check IsScreenKeyboardShow instead.
-		/// </summary>
-		/// <returns>True if text input state is active</returns>
-		public static bool IsTextInputActive()
+		public static bool IsTextInputActive
 		{
-			return FNAPlatform.IsTextInputActive(WindowHandle);
+			get => FNAPlatform.IsTextInputActive(WindowHandle);
+			set
+			{
+				if (value != IsTextInputActive)
+				{
+					if(value)
+					{
+						FNAPlatform.StartTextInput(WindowHandle);
+					}
+					else
+					{
+						FNAPlatform.StopTextInput(WindowHandle);
+					}
+				}
+			}
 		}
 
-		public static bool IsScreenKeyboardShown()
-		{
-			return FNAPlatform.IsScreenKeyboardShown(WindowHandle);
-		}
+		public static bool IsScreenKeyboardShown => FNAPlatform.IsScreenKeyboardShown(WindowHandle);
 
-		public static bool IsScreenKeyboardShown(IntPtr window)
-		{
-			return FNAPlatform.IsScreenKeyboardShown(window);
-		}
-
-		public static void StartTextInput()
-		{
-			FNAPlatform.StartTextInput(WindowHandle);
-		}
-
-		public static void StopTextInput()
-		{
-			FNAPlatform.StopTextInput(WindowHandle);
-		}
 
 		/// <summary>
 		/// Sets the location within the game window where the text input is located.
 		/// This is used to set the location of the IME suggestions
 		/// </summary>
 		/// <param name="rectangle">Text input location relative to GameWindow.ClientBounds</param>
-		public static void SetInputRectangle(Rectangle rectangle)
+		public static Rectangle InputRectangle
 		{
-			FNAPlatform.SetTextInputRectangle(WindowHandle, rectangle);
+			get => _InputRectangle;
+			set
+			{
+				if (value != _InputRectangle)
+				{
+					FNAPlatform.SetTextInputRectangle(WindowHandle, value);
+				}
+			}
 		}
 
-		public static string GetClipboardText()
+		public static string ClipboardText
 		{
-			return FNAPlatform.GetClipboardText();
+			get
+			{
+				if (FNAPlatform.HasClipboardText())
+					return FNAPlatform.GetClipboardText();
+				else
+					return string.Empty;
+			}
+			set => FNAPlatform.SetClipboardText(value);
 		}
 
-		public static bool SetClipboardText(string text)
+		public static string PrimarySelectionText
 		{
-			return FNAPlatform.SetClipboardText(text);
+			get
+			{
+				if (FNAPlatform.HasPrimarySelectionText())
+					return FNAPlatform.GetPrimarySelectionText();
+				else
+					return string.Empty;
+			}
+			set => FNAPlatform.SetPrimarySelectionText(value);
 		}
 
 		#endregion

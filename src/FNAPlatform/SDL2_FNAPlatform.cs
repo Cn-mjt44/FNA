@@ -2476,6 +2476,11 @@ namespace Microsoft.Xna.Framework
 
 		#region Clipbord Methods
 
+		public static bool HasClipboardText()
+		{
+			return SDL.SDL_HasClipboardText() == SDL.SDL_bool.SDL_TRUE;
+		}
+
 		public static string GetClipboardText()
 		{
 			return SDL.SDL_GetClipboardText();
@@ -2484,6 +2489,24 @@ namespace Microsoft.Xna.Framework
 		public static bool SetClipboardText(string text)
 		{
 			return SDL.SDL_SetClipboardText(text) == 0;
+		}
+		#endregion
+
+		#region SelectionText Methods
+
+		public static bool HasPrimarySelectionText()
+		{
+			return SDL.SDL_HasPrimarySelectionText() == SDL.SDL_bool.SDL_TRUE;
+		}
+
+		public static string GetPrimarySelectionText()
+		{
+			return SDL.SDL_GetPrimarySelectionText();
+		}
+
+		public static bool SetPrimarySelectionText(string text)
+		{
+			return SDL.SDL_SetPrimarySelectionText(text) == 0;
 		}
 		#endregion
 
